@@ -1,0 +1,10 @@
+Token #2, with value = class; at line 0, column 0
+Token #3, with value = &&; at line 1, column 0
+Token #4, with value = else; at line 2, column 0
+Token #5, with value = if; at line 3, column 0
+Token #6, with value = while; at line 4, column 0
+Token #7, with value = read; at line 5, column 0
+Token #8, with value = print; at line 6, column 0
+Token #9, with value = printline; at line 7, column 0
+Token #10, with value = return; at line 8, column 0
+Illegal char, '.' line: 1, column: 0

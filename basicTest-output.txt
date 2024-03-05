@@ -1,0 +1,5 @@
+Token #2, with value = class; at line 0, column 0
+Token #3, with value = a; at line 1, column 0
+Token #3, with value = b; at line 1, column 2
+Token #3, with value = c; at line 1, column 4
+Token #3, with value = d; at line 2, column 0
