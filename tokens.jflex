@@ -48,87 +48,90 @@ Symbol newSym(int tokenId, Object value) {
 /*-*
  * PATTERN DEFINITIONS:
  */
-number = [0-9]
-int_lit = {number}*
-id = [a-zA-Z][a-zA-Z0-9]*
-letter =[[[^\n]&&[^\t]]&&[[^\\][^\']]]|\\\\|\\\'|\\t|\\n 
-char_lit = \'{letter}\'
-float_lit = {number}+.{number}+
-str_letter =[[[^\n]&&[^\t]]&&[[^\\][^\"]]]|\\\\|\\\"|\\t|\\n 
-str_lit = \"{str_letter}*\"
-whitespace = [ \n\t\r]
-
-LineTerminator = \r|\n|\r\n
-InputCharacter = [^\r\n]
-comment = {TraditionalComment} | {EndOfLineComment}  
-
-TraditionalComment   = "\\*" [^*] ~"*\\"
-// Comment can be the last line of the file, without line terminator.
-EndOfLineComment     = \\\\{InputCharacter}*{LineTerminator}?
-/**
- * Implement patterns as regex here
- */
-
-
+tab     				= \\t
+newline	        = \\n
+slash			      = \\ 
+escapeapos		  = {slash}'
+escapequote		  = {slash}\"
+letter      	  = [A-Za-z]
+digit       	  = [0-9]
+id   			      = {letter}({letter}|{digit})* 
+intlit	    	  = {digit}+
+floatlit    	  = {intlit}+\.{intlit}+
+//                Technically, the rules allow for literal tabs and new line in chars
+//                While this is untested, this solution allows it
+charchar		    = [[^\\]&&[^']]|{newline}|{tab}|{escapeapos}|{slash}{slash}
+charlit     	  = '{charchar}'
+//                We allow a string to accept any character outside of what is explicitly
+//                banned in the rules.
+stringchar		  = [[[^\\]&&[^\"]]&&[[^\n]&&[^\t]]]|{newline}|{tab}|{escapequote}|{slash}{slash}
+stringlit		    = \"{stringchar}*\"
+blockcommentS   = {slash}\*
+blockcommentE   = \*{slash}
+//                A comment body character can be anything other than the end to
+//                the block comment.
+commentbody		  = ([^\*]|(\*+[^\\]))
+blockcomment    = {blockcommentS}{commentbody}*?{blockcommentE}
+inlinecomment 	= {slash}{slash}.*(\n|\r|\r\n)
+whitespace      = [ \n\t\r]
 
 
 %%
 /**
  * LEXICAL RULES:
  */
-
-/**
- * Implement terminals here, ORDER MATTERS!
- */
-class		{return newSym(sym.CLASS,"class");} 
-final		{return newSym(sym.FINAL,"final");} 
-void		{return newSym(sym.VOID,"void");} 
-int			{return newSym(sym.INT,"int");} 
-char		{return newSym(sym.CHAR,"char");} 
-bool		{return newSym(sym.BOOL,"bool");} 
-float		{return newSym(sym.FLOAT,"float");} 
-if			{return newSym(sym.IF,"if");} 
-else		{return newSym(sym.ELSE,"else");} 
-while		{return newSym(sym.WHILE,"while");} 
-read		{return newSym(sym.READ,"read");} 
-print		{return newSym(sym.PRINT,"print");} 
-printline	{return newSym(sym.PRINTLINE,"printline");} 
-return		{return newSym(sym.RETURN,"return");} 
-"++"	{return newSym(sym.INCREMENT,"++");} 
-"--"	{return newSym(sym.DECREMENT,"--");} 
-true		{return newSym(sym.TRUE,"true");} 
-false		{return newSym(sym.FALSE,"false");} 
-";"	{return newSym(sym.SEMI_COLON,";");} 
-"("	{return newSym(sym.L_PAREN,"(");} 
-")"	{return newSym(sym.R_PAREN,")");} 
-"["	{return newSym(sym.L_BRAC,"[");} 
-"]"	{return newSym(sym.R_BRAC,"]");} 
-"{"	{return newSym(sym.L_CURLY,"{");} 
-"}"	{return newSym(sym.R_CURLY,"}");} 
-"~" 	{return newSym(sym.UNI_NOT,"~");} 
-"?"	{return newSym(sym.QUESTION_MARK,"?");} 
-":"	{return newSym(sym.COLON,":");} 
-"*"	{return newSym(sym.MULTIPLY,"*");} 
-"/"	{return newSym(sym.DIVIDE,"/");} 
-"+"	{return newSym(sym.PLUS,"+");} 
-"-"	{return newSym(sym.MINUS,"-");} 
-"<"	{return newSym(sym.LESS,"<");} 
-">"	{return newSym(sym.GREATER,">");} 
-"<="	{return newSym(sym.LESS_EQ,"<=");} 
-">="	{return newSym(sym.GREATER_EQ,">=");} 
-"=="	{return newSym(sym.EQ,"==");} 
-"!="	{return newSym(sym.NOT_EQ,"!=");} 
-"&&"	{return newSym(sym.AND,"&&");} 
-"||"	{return newSym(sym.OR,"||");} 
-","	{return newSym(sym.COMMA,",");} 
-"="	{return newSym(sym.ASSIGN,"=");} 
-{id}	{return newSym(sym.ID, yytext());} 
-{int_lit}	{return newSym(sym.PRINTLINE,new Integer(yytext()));} 
-{char_lit}	{return newSym(sym.PRINTLINE,yytext());} 
-{str_lit}	{return newSym(sym.PRINTLINE,yytext());} 
-{float_lit}	{return newSym(sym.PRINTLINE,yytext());} 
-{comment}	{return newSym(sym.PRINTLINE,yytext());} 
-
+class           { return newSym(sym.CLASS, "class");}
+"&&"            { return newSym(sym.AND, "&&"); }
+else            { return newSym(sym.ELSE, "else"); }
+if              { return newSym(sym.IF, "if"); }
+while		        { return newSym(sym.WHILE, "while"); }
+read		        { return newSym(sym.READ, "read"); }
+print		        { return newSym(sym.PRINT, "print"); }
+printline	      { return newSym(sym.PRINTLN, "printline"); }
+return		      { return newSym(sym.RETURN, "return"); }
+"||"            { return newSym(sym.OR, "||"); }
+"*"             { return newSym(sym.TIMES, "*"); }
+"+"             { return newSym(sym.PLUS, "+"); }
+"+" 		        { return newSym(sym.PREFIXPLUS, "+"); }
+"++"		        { return newSym(sym.PLUSPLUS, "++"); }
+"-"             { return newSym(sym.MINUS, "-"); }
+"-"		          { return newSym(sym.PREFIXMINUS, "-"); }
+"--"		        { return newSym(sym.MINUSMINUS, "--"); }
+"/"             { return newSym(sym.DIVIDE, "/"); }
+";"             { return newSym(sym.SEMI, ";"); }
+"("             { return newSym(sym.LEFT_PAREN, "("); }
+")"             { return newSym(sym.RT_PAREN, ")"); }
+"{"		          { return newSym(sym.LEFT_BRACE, "{"); }
+"}"		          { return newSym(sym.RT_BRACE, "}"); }
+"["             { return newSym(sym.LEFT_BRKT, "["); }
+"]"             { return newSym(sym.RT_BRKT, "]"); }
+"=="            { return newSym(sym.EQ, "=="); }
+">"             { return newSym(sym.GTR, ">"); }
+"<"             { return newSym(sym.LESS, "<"); }
+"<="            { return newSym(sym.LESS_EQ, "<="); }
+">="            { return newSym(sym.GTR_EQ, ">="); }
+"<>"            { return newSym(sym.NOT_EQ, "<>"); }
+"~"		          { return newSym(sym.NOT, "?"); }
+"?"		          { return newSym(sym.CONDITION, "?"); }
+":"             { return newSym(sym.COLON, ":"); }
+"="             { return newSym(sym.ASSMNT, "="); }
+","		          { return newSym(sym.COMMA, ","); }
+final 		      { return newSym(sym.FINAL, "final"); }
+void		        { return newSym(sym.VOID, "void"); }
+int		          { return newSym(sym.INT, "int"); }
+float		        { return newSym(sym.FLOAT, "float"); }
+bool		        { return newSym(sym.BOOL, "bool"); }
+char		        { return newSym(sym.CHAR, "char"); }
+true		        { return newSym(sym.TRUE, "true"); }
+false		        { return newSym(sym.FALSE, "false"); }
+{id}    	      { return newSym(sym.ID, yytext()); }
+{intlit}        { return newSym(sym.INTLIT, new Integer(yytext())); }
+{floatlit}      { return newSym(sym.FLOATLIT, new Double(yytext())); }
+{charlit}       { return newSym(sym.CHARLIT, yytext()); }
+{stringlit}	    { return newSym(sym.STRINGLIT, yytext()); }
+{inlinecomment} { /* For this stand-alone lexer, print out comments. */}
+{blockcomment}	{ /* For this stand-alone lexer, print out comments. */}
 {whitespace}    { /* Ignore whitespace. */ }
 .               { System.out.println("Illegal char, '" + yytext() +
-                    "' line: " + yyline + ", column: " + yychar); } 
+                    "' line: " + yyline + ", column: " + yychar); }
+

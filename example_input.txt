@@ -5,9 +5,9 @@ class test {
 		float b = vals[1];
 		float c;
 
-		a = (a * a);
-		b = (b * b);
-		c = sqrt((a + b));
-		return (c + 0.0);
+		a = a * a;
+		b = b * b;
+		c = sqrt(a + b);
+		return c + 0.0;
 	}
 }
