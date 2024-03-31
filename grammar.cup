@@ -13,11 +13,9 @@ terminal RETURN;          //10
 terminal OR;              //11
 terminal TIMES;           //12
 terminal PLUS;            //13
-terminal PLUSPLUS;        //14
+terminal INC;        //14
 terminal MINUS;           //15
-terminal MINUSMINUS;      //16
-terminal PREFIXPLUS;      //17
-terminal PREFIXMINUS;     //18
+terminal DEC;      //16
 terminal DIVIDE;          //19
 terminal SEMI;            //20
 terminal LEFT_PAREN;      //21
@@ -33,7 +31,7 @@ terminal LESS_EQ;         //30
 terminal GTR_EQ;          //31
 terminal NOT_EQ;          //32
 terminal NOT;             //33
-terminal CONDITION;       //34
+terminal QUEST;       //34
 terminal COLON;           //35
 terminal ASSMNT;          //36
 terminal COMMA;           //37
@@ -53,6 +51,57 @@ terminal double FLOATLIT; //48
 terminal String CHARLIT;  //49
 terminal String STRINGLIT;//50
 
-non terminal dummy;
-dummy ::= ;
+// non Terminals
+non terminal Program program;
+non terminal Memberdecls memberdecls;
+non terminal ArrayList<Fielddecl> fielddecls;
+non terminal ArrayList<Methoddecl> methoddecls;
+non terminal Fielddecl fielddecl;
+non terminal Methoddecl methoddecl;
+non terminal Expr optionalexpr;
+non terminal Boolean optionalsemi;
+non terminal String type;
+non terminal ArrayList<Argdecl> argdecllist;
+non terminal ArrayList<Argdecl> argdecls;
+non terminal Argdecl argdecl;
+non terminal ArrayList<Stmt> stmts;
+non terminal Stmt stmt;
+non terminal Stmt ifEnd;
+//non terminal Args args;
+non terminal ArrayList<Expr> args;
+non terminal ArrayList<Name> readlist;
+non terminal ArrayList<Expr> printlist;
+non terminal ArrayList<Expr> printlinelist;
+non terminal Name name;
+//non terminal Name name;
+non terminal Expr expr;
 
+
+// production rules
+
+program ::= expr:e
+{: RESULT = new Program(e); :}
+;
+
+//name := ID
+//| ID LEFT_BRKT Expr RT_PAREN
+//;
+
+//args := Expr COMMA Args
+//|Expr
+//;
+
+expr ::= INTLIT: i
+// {: RESULT = new Expr(i); :}
+| CHARLIT : c
+// {: RESULT = new Expression(c):}
+| STRINGLIT: str
+// {: RESULT = new Expression(str):}
+| FLOATLIT: d 
+// {: RESULT = new Expression(d):}
+| TRUE :t
+// {: RESULT = new Expression(t):}
+| FALSE : f
+// {: RESULT = new Expression(f):}
+;
+ 

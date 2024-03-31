@@ -13,31 +13,17 @@ default: run
 		$(JAVAC) -cp $(CP) $*.java
 
 FILE=    Lexer.java      parser.java    sym.java \
-    LexerTest.java
+    ScannerTest.java \
+	Expr.java Args.java Name.java Program.java
 
-run: basicTest.txt basicFails.txt basicRegex.txt basicRegex.txt basicTerminals.txt
+# run: basicTest.txt basicFails.txt basicRegex.txt basicRegex.txt basicTerminals.txt
 
 all: Lexer.java parser.java $(FILE:java=class)
 
-basicTest.txt: all
-		$(JAVA) -cp $(CP) LexerTest basicTest.txt > basicTest-output.txt
-		cat basicTest.txt
-		cat -n basicTest-output.txt
-
-basicFails.txt: all
-		$(JAVA) -cp $(CP) LexerTest basicFails.txt > basicFails-output.txt 
-		cat basicFails.txt 
-		cat -n basicFails-output.txt
-
-basicRegex.txt: all
-		$(JAVA) -cp $(CP) LexerTest basicRegex.txt > basicRegex-output.txt 
-		cat basicRegex.txt 
-		cat -n basicRegex-output.txt
-
-basicTerminals.txt: all
-		$(JAVA) -cp $(CP) LexerTest basicTerminals.txt > basicTerminals-output.txt 
-		cat basicTerminals.txt 
-		cat -n basicTerminals-output.txt
+Phase1: all
+		$(JAVA) -cp $(CP) ScannerTest Phase1Tests/Phase1_expressions.txt > Phase1_expressions-output.txt
+		cat Phase1Tests/Phase1_expressions.txt 
+		cat -n Phase1_expressions-output.txt 
 
 clean:
 		rm -f *.class *~ *.bak Lexer.java parser.java sym.java

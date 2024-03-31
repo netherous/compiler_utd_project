@@ -92,11 +92,9 @@ return		      { return newSym(sym.RETURN, "return"); }
 "||"            { return newSym(sym.OR, "||"); }
 "*"             { return newSym(sym.TIMES, "*"); }
 "+"             { return newSym(sym.PLUS, "+"); }
-"+" 		        { return newSym(sym.PREFIXPLUS, "+"); }
-"++"		        { return newSym(sym.PLUSPLUS, "++"); }
+"++"		        { return newSym(sym.INC, "++"); }
 "-"             { return newSym(sym.MINUS, "-"); }
-"-"		          { return newSym(sym.PREFIXMINUS, "-"); }
-"--"		        { return newSym(sym.MINUSMINUS, "--"); }
+"--"		        { return newSym(sym.DEC, "--"); }
 "/"             { return newSym(sym.DIVIDE, "/"); }
 ";"             { return newSym(sym.SEMI, ";"); }
 "("             { return newSym(sym.LEFT_PAREN, "("); }
@@ -111,8 +109,8 @@ return		      { return newSym(sym.RETURN, "return"); }
 "<="            { return newSym(sym.LESS_EQ, "<="); }
 ">="            { return newSym(sym.GTR_EQ, ">="); }
 "<>"            { return newSym(sym.NOT_EQ, "<>"); }
-"~"		          { return newSym(sym.NOT, "?"); }
-"?"		          { return newSym(sym.CONDITION, "?"); }
+"~"		          { return newSym(sym.NOT, "~"); }
+"?"		          { return newSym(sym.QUEST, "?"); }
 ":"             { return newSym(sym.COLON, ":"); }
 "="             { return newSym(sym.ASSMNT, "="); }
 ","		          { return newSym(sym.COMMA, ","); }
