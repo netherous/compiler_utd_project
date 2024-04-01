@@ -14,15 +14,28 @@ default: run
 
 FILE=    Lexer.java      parser.java    sym.java \
     ScannerTest.java \
-	Expr.java Args.java Name.java Program.java
+	Expr.java Args.java Name.java BinaryOps.java Program.java \
+	Stmt.java StmtList.java
 
 # run: basicTest.txt basicFails.txt basicRegex.txt basicRegex.txt basicTerminals.txt
 
 all: Lexer.java parser.java $(FILE:java=class)
 
-Phase1: all
+phase1 : Phase1_expressions Phase1_order_of_ops Phase1_statements
+
+Phase1_expressions: all
 		$(JAVA) -cp $(CP) ScannerTest Phase1Tests/Phase1_expressions.txt > Phase1_expressions-output.txt
 		cat Phase1Tests/Phase1_expressions.txt 
+		cat -n Phase1_expressions-output.txt 
+
+Phase1_order_of_ops: all
+		$(JAVA) -cp $(CP) ScannerTest Phase1Tests/Phase1_order_of_ops.txt > Phase1_expressions-output.txt
+		cat Phase1Tests/Phase1_order_of_ops.txt 
+		cat -n Phase1_expressions-output.txt 
+
+Phase1_statements: all
+		$(JAVA) -cp $(CP) ScannerTest Phase1Tests/Phase1_statements.txt > Phase1_expressions-output.txt
+		cat Phase1Tests/Phase1_statements.txt
 		cat -n Phase1_expressions-output.txt 
 
 clean:

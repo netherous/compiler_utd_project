@@ -64,44 +64,153 @@ non terminal String type;
 non terminal ArrayList<Argdecl> argdecllist;
 non terminal ArrayList<Argdecl> argdecls;
 non terminal Argdecl argdecl;
-non terminal ArrayList<Stmt> stmts;
+non terminal StmtList stmts;
 non terminal Stmt stmt;
 non terminal Stmt ifEnd;
-//non terminal Args args;
-non terminal ArrayList<Expr> args;
+non terminal Args args;
 non terminal ArrayList<Name> readlist;
-non terminal ArrayList<Expr> printlist;
-non terminal ArrayList<Expr> printlinelist;
+non terminal Args printlist;
+non terminal Args printlinelist;
 non terminal Name name;
-//non terminal Name name;
 non terminal Expr expr;
+non terminal BinaryOps binOps;
+
+//precendence
+terminal UPLUS, UMINUS;
+
+precedence left PLUS, MINUS;
+precedence left TIMES, DIVIDE;
+
+precedence left OR;
+precedence left AND;
+
+precedence left NOT_EQ, EQ;
+precedence left GTR, GTR_EQ, LESS, LESS_EQ;
+
+
+// precedence left ELSE;
+
+// precedence left ASSMNT;
+
+precedence left QUEST;
+precedence right NOT, UPLUS, UMINUS;
 
 
 // production rules
 
-program ::= expr:e
-{: RESULT = new Program(e); :}
+program ::= stmts: sts
+{: RESULT = new Program(sts); :}
 ;
 
-//name := ID
-//| ID LEFT_BRKT Expr RT_PAREN
-//;
-
-//args := Expr COMMA Args
-//|Expr
-//;
-
-expr ::= INTLIT: i
-// {: RESULT = new Expr(i); :}
-| CHARLIT : c
-// {: RESULT = new Expression(c):}
-| STRINGLIT: str
-// {: RESULT = new Expression(str):}
-| FLOATLIT: d 
-// {: RESULT = new Expression(d):}
-| TRUE :t
-// {: RESULT = new Expression(t):}
-| FALSE : f
-// {: RESULT = new Expression(f):}
+type ::= INT
+        {: RESULT = "int"; :}
+        | FLOAT
+        {: RESULT = "float"; :}
+        | BOOL
+        {: RESULT = "bool"; :}
+        | CHAR
+        {: RESULT = "char"; :}
 ;
+
+stmts ::= stmt:s stmts: sts 
+        {: RESULT = sts.prepend(s); :}
+        |
+        {: RESULT = new StmtList(); :}
+;
+
+stmt ::= name:nm ASSMNT expr:e SEMI
+        {: RESULT = new Stmt(nm,e); :}
+;
+
+name ::= ID:id
+        {: RESULT = new Name(id); :}
+        | ID:id LEFT_BRKT expr:e RT_PAREN
+        {: RESULT = new Name(id,e); :}
+;
+
+args ::= expr:e COMMA args:ar
+        {: RESULT = ar.prepend(e); :}
+        | expr:e
+        {: 
+            Args ar = new Args();
+            RESULT = ar.prepend(e); 
+        :}
+;
+
+printlist ::= expr:e COMMA printlinelist:pr
+        {: RESULT = pr.prepend(e); :}
+        | expr:e
+        {: 
+            Args pr = new Args();
+            RESULT = pr.prepend(e); 
+        :}
+;
+
+printlinelist ::= printlist:pr
+        {: RESULT = pr; :}
+        | expr:e
+        {: 
+            RESULT = new Args();
+        :}
+;
+
+expr ::= name: nm //1 
+        {: RESULT = new Expr(nm); :} 
+        | ID:id LEFT_PAREN RT_PAREN //2 
+        {: RESULT = new Expr(id,2); :}
+        | ID:id LEFT_PAREN args:a RT_PAREN //3
+        {: RESULT = new Expr(id,a); :}
+        |INTLIT: i //4
+        {: RESULT = new Expr(i); :}
+        | CHARLIT : c //5
+        {: RESULT = new Expr(c,5);:}
+        | STRINGLIT: str //6
+        {: RESULT = new Expr(str,6);:}
+        | FLOATLIT: d //7
+        {: RESULT = new Expr(d);:}
+        | TRUE  //8
+        {: RESULT = new Expr(true);:}
+        | FALSE  //9
+        {: RESULT = new Expr(false);:}
+        | LEFT_PAREN expr:e RT_PAREN //10
+        {: RESULT = new Expr(e); :}
+        | NOT expr:e //11
+        {: RESULT = new Expr(e,11); :}
+        | MINUS expr:e //12
+        {: RESULT = new Expr(e,12); :} %prec UMINUS
+        | PLUS expr:e //13
+        {: RESULT = new Expr(e,13); :} %prec UPLUS
+        | LEFT_PAREN type:t RT_PAREN expr:e //14
+        {: RESULT = new Expr(t,e); :}
+        | expr:e1 binOps:ops expr:e2 //15
+        {: RESULT = new Expr(e1,e2,ops);:}
+        | LEFT_PAREN expr:e1 QUEST expr:e2 COLON expr:e3 RT_PAREN //16
+        {: RESULT = new Expr(e1,e2,e3);:}
+        ;
+
+binOps ::= TIMES
+        {: RESULT = new BinaryOps("*"); :}
+        | DIVIDE
+        {: RESULT = new BinaryOps("/"); :}
+        | PLUS
+        {: RESULT = new BinaryOps("+"); :}
+        | MINUS
+        {: RESULT = new BinaryOps("-"); :}
+        | LESS
+        {: RESULT = new BinaryOps("<"); :}
+        | GTR
+        {: RESULT = new BinaryOps(">"); :}
+        | LESS_EQ
+        {: RESULT = new BinaryOps("<="); :}
+        | GTR_EQ
+        {: RESULT = new BinaryOps(">="); :}
+        | EQ
+        {: RESULT = new BinaryOps("=="); :}
+        | NOT_EQ
+        {: RESULT = new BinaryOps("!="); :}
+        | OR
+        {: RESULT = new BinaryOps("||"); :}
+        | AND
+        {: RESULT = new BinaryOps("&&"); :}
+        ;
  
