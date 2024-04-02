@@ -53,16 +53,18 @@ terminal String STRINGLIT;//50
 
 // non Terminals
 non terminal Program program;
-non terminal Memberdecls memberdecls;
-non terminal ArrayList<Fielddecl> fielddecls;
-non terminal ArrayList<Methoddecl> methoddecls;
+non terminal Memberdecl memberdecls;
+non terminal FielddeclList fielddecls;
+non terminal MethoddeclList methoddecls;
 non terminal Fielddecl fielddecl;
 non terminal Methoddecl methoddecl;
+non terminal Boolean optionalfinal;
 non terminal Expr optionalexpr;
 non terminal Boolean optionalsemi;
+non terminal String returnType;
 non terminal String type;
-non terminal ArrayList<Argdecl> argdecllist;
-non terminal ArrayList<Argdecl> argdecls;
+non terminal ArgdeclList argdecllist;
+non terminal ArgdeclList argdecls;
 non terminal Argdecl argdecl;
 non terminal StmtList stmts;
 non terminal Stmt stmt;
@@ -88,9 +90,8 @@ precedence left NOT_EQ, EQ;
 precedence left GTR, GTR_EQ, LESS, LESS_EQ;
 
 
-// precedence left ELSE;
 
-// precedence left ASSMNT;
+precedence left ASSMNT;
 
 precedence left QUEST;
 precedence right NOT, UPLUS, UMINUS;
@@ -99,8 +100,55 @@ precedence right NOT, UPLUS, UMINUS;
 // production rules
 
 //Entry point
-program ::= stmts: sts
-{: RESULT = new Program(sts); :}
+program ::= CLASS ID:id LEFT_BRACE memberdecls:mbs RT_BRACE
+        {: RESULT = new Program(id,mbs); :}
+        | stmts:sts
+        {: RESULT = new Program(sts); :}
+;
+
+memberdecls ::= fielddecl:fd memberdecls:mbs
+        {: RESULT = new Memberdecl(fd,mbs); :}
+        |methoddecls:mds
+        {: RESULT = new Memberdecl(mds); :}
+;
+
+fielddecls ::= fielddecl:fd fielddecls:fds
+        {: RESULT = fds.prepend(fd); :}
+        |
+        {: RESULT = new FielddeclList(); :}
+;
+
+methoddecls ::= methoddecl:md methoddecls:mds
+        {: RESULT = mds.prepend(md); :}
+        |
+        {: RESULT = new MethoddeclList(); :}
+;
+
+fielddecl ::= FINAL type:t ID:id optionalexpr:oe SEMI
+        {: 
+        RESULT = new Fielddecl("final", t, id,oe,0,true); :}
+        | type:t ID:id optionalexpr:oe SEMI
+        {:
+         RESULT = new Fielddecl("", t, id,oe,0,true); :}
+        | type:t ID:id LEFT_BRKT INTLIT:it RT_BRKT SEMI
+        {:
+         RESULT = new Fielddecl("", t, id,null,it,false); :}
+;
+
+optionalexpr ::= ASSMNT expr:e
+        {: 
+        RESULT = e; :}
+        |
+        {: 
+        RESULT = null; :}
+;
+
+methoddecl ::= VOID ID:id LEFT_PAREN argdecls:adl RT_PAREN LEFT_BRACE fielddecls:fds stmts:sts RT_BRACE optionalsemi:os
+        {: RESULT = new Methoddecl("void", id, adl,fds,sts,os); 
+        :}
+        | type:t ID:id LEFT_PAREN argdecls:adl RT_PAREN LEFT_BRACE fielddecls:fds stmts:sts RT_BRACE optionalsemi:os
+        {: RESULT = new Methoddecl(t, id, adl,fds,sts,os);
+        :}
 ;
 
 //optionalsemi
@@ -110,11 +158,18 @@ optionalsemi ::= SEMI
         {: RESULT = false; :}
 ;
 
+returnType ::= type:t
+        {: RESULT = t; :}
+        | VOID
+        {: RESULT = "void"; :}
+;
+
 //Type
 type ::= INT
         {: RESULT = "int"; :}
         | FLOAT
-        {: RESULT = "float"; :}
+        {: RESULT = "float"; 
+        :}
         | BOOL
         {: RESULT = "bool"; :}
         | CHAR
@@ -122,15 +177,24 @@ type ::= INT
 ;
 
 argdecls ::= argdecllist:adl
+        {: RESULT = adl; :}
         |
+        {: RESULT = new ArgdeclList(); :}
 ;
 
 argdecllist ::= argdecl:ad COMMA argdecllist:adl
+        {: RESULT = adl.prepend(ad); :}
         | argdecl:ad
+        {:      ArgdeclList adl = new ArgdeclList(); 
+                RESULT = adl.prepend(ad); :}
 ;
 
 argdecl ::= type:t ID:id
+        {:
+         RESULT = new Argdecl(t,id,false); :}
         | type:t ID:id LEFT_BRKT RT_BRKT
+        {:
+         RESULT = new Argdecl(t,id,true); :}
 ;
 
 //Statements
@@ -166,8 +230,8 @@ stmt ::= IF LEFT_PAREN expr:e RT_PAREN LEFT_BRACE stmts:sts RT_BRACE ifEnd:ife /
         {: RESULT = new Stmt(nm,11); :}
         | name:nm DEC SEMI //12
         {: RESULT = new Stmt(nm,12); :}
-        | LEFT_BRACE stmts:sts RT_BRACE optionalsemi:o //13
-        {: RESULT = new Stmt(sts,o); :}
+        | LEFT_BRACE fielddecls:fds stmts:sts RT_BRACE optionalsemi:o //13
+        {: RESULT = new Stmt(fds, sts,o); :}
 
 ;
 
@@ -179,9 +243,11 @@ ifEnd ::= ELSE LEFT_BRACE stmts:sts RT_BRACE
 ;
 //Name
 name ::= ID:id
-        {: RESULT = new Name(id); :}
-        | ID:id LEFT_BRKT expr:e RT_PAREN
-        {: RESULT = new Name(id,e); :}
+        {: 
+        RESULT = new Name(id); :}
+        | ID:id LEFT_BRKT expr:e RT_BRKT
+        {: 
+        RESULT = new Name(id,e); :}
 ;
 
 //Args
@@ -196,7 +262,9 @@ args ::= expr:e COMMA args:ar
 
 //read
 readlist ::= name:nm COMMA readlist:rl
-        {: RESULT = rl.prepend(nm); :}
+        {: 
+        
+        RESULT = rl.prepend(nm); :}
         | name:nm
         {: 
             ReadList ar = new ReadList();
@@ -251,7 +319,8 @@ expr ::= name: nm //1
         | PLUS expr:e //13
         {: RESULT = new Expr(e,13); :} %prec UPLUS
         | LEFT_PAREN type:t RT_PAREN expr:e //14
-        {: RESULT = new Expr(t,e); :}
+        {: 
+        RESULT = new Expr(t,e); :}
         | expr:e1 binOps:ops expr:e2 //15
         {: RESULT = new Expr(e1,e2,ops);:}
         | LEFT_PAREN expr:e1 QUEST expr:e2 COLON expr:e3 RT_PAREN //16

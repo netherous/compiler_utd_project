@@ -14,7 +14,7 @@ public class Name extends Token{
         if(ind == null){
             return id;
         }else{
-            return id + "[" + ind.toString() + "]";
+            return id + "[" + ind.toString(t) + "]";
         }
     }
 }

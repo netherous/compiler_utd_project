@@ -2,6 +2,8 @@ class test {
 int x[7];
 float pythag(float vals[])
 {
+	float x;
+	float a[10];
 	float a = vals[0];
 	float b = vals[1];
 	float c;
@@ -17,6 +19,7 @@ void main()
 	float height;
 	float length;
 	float triVals[3];
+	x = x;
 	read(height, length);
 	triVals[0] = height;
 	triVals[1] = length;

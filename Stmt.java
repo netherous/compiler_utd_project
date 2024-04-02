@@ -1,5 +1,6 @@
 public class Stmt extends Token {
    StmtList sts1, sts2;
+   FielddeclList fds;
    Args ar;
    ReadList rl;
    Expr ex;
@@ -53,9 +54,10 @@ public class Stmt extends Token {
       this.prod = prod;
    }
 
-   public Stmt(StmtList sts, boolean flag) {
+   public Stmt(FielddeclList fds, StmtList sts, boolean flag) {
       this.sts1= sts;
       this.opSemi = flag;
+      this.fds = fds;
       this.prod = 13;
    }
 
@@ -102,7 +104,7 @@ public class Stmt extends Token {
             ret =getTabs(t)+ nm.toString(t) + "--;";
             break;
          case 13:
-            ret =getTabs(t)+ "{\n" + sts1.toString(t+1) +"\n"+getTabs(t)+"}";
+            ret =getTabs(t)+ "{\n" + fds.toString(t+1)+ sts1.toString(t+1) +"\n"+getTabs(t)+"}";
             ret += opSemi? ";" : "";
             break;
       }

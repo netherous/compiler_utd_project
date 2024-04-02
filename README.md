@@ -1,5 +1,2 @@
-Compiler Project Phase 0
-================
-Initial Commit with what is needed to get started
+type make phase_2 then test will be run and result will be printed
 
-Type make into the terminal would run the project and test everything.

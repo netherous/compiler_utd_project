@@ -1,12 +1,23 @@
 public class Program extends Token{
+	String id;
+	Memberdecl mbs;
+	int empty = 0;
 	StmtList sts;
-	public Program(StmtList ss){
-		sts = ss;
-		System.err.println("program start");
+	public Program(String id, Memberdecl mbs){
+		this.id = id;
+		this.mbs = mbs;
+	}
+	public Program(){
+		empty =1;
+	}
+	public Program(StmtList sts){
+		this.sts = sts;
 	}
 
 	@Override
 	public String toString(int t){
-		return "Program: \n" + sts.toString(t+1) + "\n";
+		if(empty == 1) return "Program\n"; 
+		if(sts != null) return getTabs(t) + "Program: \n" + sts.toString(t+1) + "\n";
+		return "Program: \n" + getTabs(t)+ "class "+id+ "{\n"+mbs.toString(t+1)+"\n"+getTabs(t)+"}" + "\n";
 	}
 }

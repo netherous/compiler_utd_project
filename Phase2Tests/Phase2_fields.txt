@@ -1,1 +1,5 @@
-class onlyFields { int x;}
+class onlyFields { 
+    float x;
+    int emu[43];
+    float ab = func(arg);
+}

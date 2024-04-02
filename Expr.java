@@ -118,7 +118,7 @@ public class Expr extends Token {
                 ret =  "(" + ex.toString(tab) + "?" + ex2.toString(tab) + ":" + ex3.toString(tab) + ")";
                 break;
         }
-        // ret = "(" + ret + ")";
+        ret = "(" + ret + ")";
         return ret;
     }
 }

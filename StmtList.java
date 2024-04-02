@@ -14,7 +14,7 @@ public class StmtList extends Token{
     for(Stmt s: st){
         i++;
         ret += s.toString(t) ;
-        ret += i == st.size()? "" : "\n";
+        ret += "\n";
     }
     return ret;
    }
