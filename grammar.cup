@@ -66,9 +66,9 @@ non terminal ArrayList<Argdecl> argdecls;
 non terminal Argdecl argdecl;
 non terminal StmtList stmts;
 non terminal Stmt stmt;
-non terminal Stmt ifEnd;
+non terminal StmtList ifEnd;
 non terminal Args args;
-non terminal ArrayList<Name> readlist;
+non terminal ReadList readlist;
 non terminal Args printlist;
 non terminal Args printlinelist;
 non terminal Name name;
@@ -98,10 +98,19 @@ precedence right NOT, UPLUS, UMINUS;
 
 // production rules
 
+//Entry point
 program ::= stmts: sts
 {: RESULT = new Program(sts); :}
 ;
 
+//optionalsemi
+optionalsemi ::= SEMI 
+        {: RESULT = true; :}
+        |
+        {: RESULT = false; :}
+;
+
+//Type
 type ::= INT
         {: RESULT = "int"; :}
         | FLOAT
@@ -112,22 +121,70 @@ type ::= INT
         {: RESULT = "char"; :}
 ;
 
+argdecls ::= argdecllist:adl
+        |
+;
+
+argdecllist ::= argdecl:ad COMMA argdecllist:adl
+        | argdecl:ad
+;
+
+argdecl ::= type:t ID:id
+        | type:t ID:id LEFT_BRKT RT_BRKT
+;
+
+//Statements
 stmts ::= stmt:s stmts: sts 
         {: RESULT = sts.prepend(s); :}
         |
         {: RESULT = new StmtList(); :}
 ;
 
-stmt ::= name:nm ASSMNT expr:e SEMI
+
+//Statement
+stmt ::= IF LEFT_PAREN expr:e RT_PAREN LEFT_BRACE stmts:sts RT_BRACE ifEnd:ife //1 if(e){sts1}ife
+        {: RESULT = new Stmt(e,sts,ife); :}
+        | WHILE LEFT_PAREN expr:e RT_PAREN LEFT_BRACE stmts:sts RT_BRACE //2 while(e){sts}
+        {: RESULT = new Stmt(e,sts); :}
+        | name:nm ASSMNT expr:e SEMI //3 nm = e;
         {: RESULT = new Stmt(nm,e); :}
+        | READ LEFT_PAREN readlist:rl RT_PAREN SEMI //4
+        {: RESULT = new Stmt(rl); :}
+        | PRINT LEFT_PAREN printlist:pl RT_PAREN SEMI //5
+        {: RESULT = new Stmt(pl,5); :}
+        | PRINTLN LEFT_PAREN printlinelist:pll RT_PAREN SEMI //6
+        {: RESULT = new Stmt(pll,6); :}
+        | ID:id LEFT_PAREN RT_PAREN SEMI //7
+        {: RESULT = new Stmt(id,null); :}
+        | ID:id LEFT_PAREN args:ar RT_PAREN SEMI //8
+        {: RESULT = new Stmt(id,ar); :}
+        | RETURN SEMI //9
+        {: RESULT = new Stmt(9,null); :}
+        | RETURN expr:e SEMI //10
+        {: RESULT = new Stmt(10,e); :}
+        | name:nm INC SEMI //11
+        {: RESULT = new Stmt(nm,11); :}
+        | name:nm DEC SEMI //12
+        {: RESULT = new Stmt(nm,12); :}
+        | LEFT_BRACE stmts:sts RT_BRACE optionalsemi:o //13
+        {: RESULT = new Stmt(sts,o); :}
+
 ;
 
+//ifEnd
+ifEnd ::= ELSE LEFT_BRACE stmts:sts RT_BRACE
+        {: RESULT = sts; :}
+        |
+        {: RESULT = null; :}
+;
+//Name
 name ::= ID:id
         {: RESULT = new Name(id); :}
         | ID:id LEFT_BRKT expr:e RT_PAREN
         {: RESULT = new Name(id,e); :}
 ;
 
+//Args
 args ::= expr:e COMMA args:ar
         {: RESULT = ar.prepend(e); :}
         | expr:e
@@ -137,6 +194,17 @@ args ::= expr:e COMMA args:ar
         :}
 ;
 
+//read
+readlist ::= name:nm COMMA readlist:rl
+        {: RESULT = rl.prepend(nm); :}
+        | name:nm
+        {: 
+            ReadList ar = new ReadList();
+            RESULT = ar.prepend(nm); 
+        :}
+;
+
+//print
 printlist ::= expr:e COMMA printlinelist:pr
         {: RESULT = pr.prepend(e); :}
         | expr:e
@@ -146,14 +214,16 @@ printlist ::= expr:e COMMA printlinelist:pr
         :}
 ;
 
+//printline
 printlinelist ::= printlist:pr
         {: RESULT = pr; :}
-        | expr:e
+        |
         {: 
             RESULT = new Args();
         :}
 ;
 
+//Expression
 expr ::= name: nm //1 
         {: RESULT = new Expr(nm); :} 
         | ID:id LEFT_PAREN RT_PAREN //2 
@@ -188,6 +258,7 @@ expr ::= name: nm //1
         {: RESULT = new Expr(e1,e2,e3);:}
         ;
 
+//BinaryOps
 binOps ::= TIMES
         {: RESULT = new BinaryOps("*"); :}
         | DIVIDE
