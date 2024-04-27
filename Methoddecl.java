@@ -1,3 +1,6 @@
+import java.util.*;
+
+import javax.swing.text.Style;
 public class Methoddecl extends Token {
 
     String type, id;
@@ -22,4 +25,44 @@ public class Methoddecl extends Token {
         ret += getTabs(t) + "}" + (os? ";" : "");
         return ret;
     }
+
+    public String typeCheck() throws Exception {
+        // create list of params for function definition
+        ArrayList<Var> params = new ArrayList<>();
+
+        for (Argdecl arg : adl.al){
+            // SymbolTable.Var v = new SymbolTable.Var(arg.id,(arg.brak ? "array" : ""), arg.type, new ArrayList<>());
+            params.add(new Var(arg.id,(arg.brak ? "array" : ""), arg.type, new ArrayList<>()));
+        }
+        symbolTable.addVar(id, "meth", type, params);
+
+        symbolTable.startScope();
+
+        for (Argdecl arg : adl.al)
+            arg.typeCheck();
+
+        for (Fielddecl f : fds.fds)
+            f.typeCheck();
+        // verify whether return is needed for function
+        boolean needsReturn = !type.equals("void");
+        // typecheck inner statements
+        for (Stmt stmt : sts.st) {
+            if (stmt.isRet()) {
+                // satisfy return requirement
+                needsReturn = false;
+                // check that returntype == function type
+                if (!castTo(stmt.typeCheck(),(type)))
+                    throw new Exception("Error: return type mis-matched" );
+            } else
+                stmt.typeCheck();
+        }
+
+        // throw exception if a return statement was not found
+        if (needsReturn)
+            throw new Exception("Error: missing return value" );
+
+        symbolTable.endScope();
+        return "";
+    }
+
 }

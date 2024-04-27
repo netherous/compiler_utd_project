@@ -16,7 +16,7 @@ public class Program extends Token{
 	}
 
 	public String typeCheck() throws Exception{
-		return "";
+		return mbs.typeCheck();
 	}
 
 	@Override

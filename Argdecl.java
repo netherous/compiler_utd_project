@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 public class Argdecl extends Token{
     boolean brak;
     String type;
@@ -10,5 +12,11 @@ public class Argdecl extends Token{
 
     public String toString(int t){
         return type + " " + id + (brak? "[]" : "");
+    }
+
+    public String typeCheck() throws Exception{
+        symbolTable.addVar(id,(brak ? "array" : ""), type, new ArrayList<>());
+        System.err.println(symbolTable.get(id).toString());
+        return "";
     }
 }

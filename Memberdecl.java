@@ -27,4 +27,12 @@ public class Memberdecl extends Token{
         }        
         return ret;
     }
+    public String typeCheck() throws Exception{
+        for (Fielddecl f : fd.fds)
+            f.typeCheck();
+        for (Methoddecl m : md.fds)
+            m.typeCheck();
+        symbolTable.endScope();
+        return "";
+    }
 }

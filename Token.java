@@ -22,7 +22,7 @@ abstract class Token {
       return true;
     if (to.equals("bool") && (from.equals("int") || from.equals("float")))
       return true;
-    if (floatOrInt(to) && floatOrInt(from))
+    if (from.equals("int") && to.equals("float"))
       return true;
     if (to.equals("str"))
       return true;

@@ -141,7 +141,7 @@ public class Expr extends Token {
                 ret = name.typeCheck();
                 break;
             case 2:
-                SymbolTable.Var meth = symbolTable.get(str);
+                Var meth = symbolTable.get(str);
                 if(meth.type != "meth"){
                     throw new Exception("Error: cannot call on non-function type: " + str);
                 }
@@ -156,7 +156,7 @@ public class Expr extends Token {
                     throw new Exception("Error: number of arguments miss-matched: " + meth.toString());
                 for(int i = 0; i< args.dq.size(); i++){
                     Expr from = args.dq.get(i);
-                    SymbolTable.Var to = meth.nested.get(i);
+                    Var to = meth.nested.get(i);
                     if((from.isArray() != to.isArray()) || !castTo(from.typeCheck(), to.typeCheck()))
                         throw new Exception("Error: argument types mis-matched: " + meth.toString());
                 }
@@ -189,12 +189,13 @@ public class Expr extends Token {
                 ret =  "bool";
                 break;
             case 12:
-                if(!ex.typeCheck().equals("float") || !ex.typeCheck().equals("int"))
-                    throw new Exception("Error: operator cannot be apply to this type: " + ex.typeCheck());
                 ret = ex.typeCheck(); 
+                if(!ex.typeCheck().equals("float") && !ex.typeCheck().equals("int"))
+                    throw new Exception("Error: operator cannot be apply to this type: " + ex.typeCheck());
                 break;
             case 13:
-                if(!ex.typeCheck().equals("float") || !ex.typeCheck().equals("int"))
+                ret = ex.typeCheck(); 
+                if(!ex.typeCheck().equals("float") && !ex.typeCheck().equals("int"))
                     throw new Exception("Error: operator cannot be apply to this type: " + ex.typeCheck());
                 ret = ex.typeCheck(); 
                 break;
@@ -204,25 +205,34 @@ public class Expr extends Token {
                 break;
             case 15:
             //binary ops
-                String op = ops.toString();
+                String op = ops.ops;
                 String t1 = ex.typeCheck();
                 String t2 = ex2.typeCheck();
                 if(ex.typeCheck().equals("str") || ex.typeCheck().equals("str")){
-                    if(!op.equals("+"))
-                        throw new Exception("Error: type mis-matched for operator: " + op);
+                    if(!op.equals("+")){
+
+                        throw new Exception("Error: type mis-matched for operator: " 
+                        + op + " " + ex.toString(0) + "," + ex2.toString(0));
+                    }
                     ret = "str";
                 } 
                 if(ops.isArith()){
-                    if (!floatOrInt(ex.typeCheck()) || !floatOrInt(ex2.typeCheck()))
-                        throw new Exception("Error: type mis-matched for operator: " + op);
+                    if (castTo(t1, "int"))
+                        t1 = "int";
+                    if (castTo(t2, "int"))
+                        t2 = "int";
+                    if (!floatOrInt(t1) || !floatOrInt(t2)){
+
+                        throw new Exception("Error: type mis-matched for operator: " + op + " " + ex.toString(0) + "," + ex2.toString(0));
+                    }
                     ret = t1.equals("float") || t2.equals("float")? "float":"int";
                 }else if(ops.isRel()){
                     if (!floatOrInt(ex.typeCheck()) || !floatOrInt(ex2.typeCheck()))
-                        throw new Exception("Error: type mis-matched for operator: " + op);
+                        throw new Exception("Error: type mis-matched for operator: " + op + " " + ex.toString(0) + "," + ex2.toString(0));
                     ret = "bool";
                 }else if (ops.isLog()){
                     if(!isBool(t2)|| !isBool(t1))
-                        throw new Exception("Error: type mis-matched for operator: " + op);
+                        throw new Exception("Error: type mis-matched for operator: " + op + " " + ex.toString(0) + "," + ex2.toString(0));
                     ret = "bool";
                 }
                 break;
@@ -237,7 +247,6 @@ public class Expr extends Token {
                 ret = t2;
                 break;
         }
-        ret = "(" + ret + ")";
         return ret;
     }
 }

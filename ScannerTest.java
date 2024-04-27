@@ -44,6 +44,14 @@ public class ScannerTest{
         catch (Exception e) {
           e.printStackTrace();
         }
+        if (program != null) {
+          try {
+            String typeCatch = program.typeCheck();
+            System.err.println("All good!");
+          } catch (Exception u) {
+            System.err.println(u.toString());
+          }
+        }
     }
 }
 

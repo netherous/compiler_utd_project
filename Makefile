@@ -25,30 +25,52 @@ FILE=    Lexer.java      parser.java    sym.java \
 all: Lexer.java parser.java $(FILE:java=class)
 
 uniq : all
-		$(JAVA) -cp $(CP) ScannerTest p3tests/incompatBinary.as
-		cat -n p3tests/incompatBinary.as
+		$(JAVA) -cp $(CP) ScannerTest p3tests/badTernaryCond.as
+		echo "--------------------------------------------------------"
+		$(JAVA) -cp $(CP) ScannerTest p3tests/fullValidProgram.as
+		echo "--------------------------------------------------------"
 
 phase3 : all
 		$(JAVA) -cp $(CP) ScannerTest p3tests/badDec.as
+		echo "--------------------------------------------------------"
 		$(JAVA) -cp $(CP) ScannerTest p3tests/badInc.as
+		echo "--------------------------------------------------------"
 		$(JAVA) -cp $(CP) ScannerTest p3tests/badNegation.as
+		echo "--------------------------------------------------------"
 		$(JAVA) -cp $(CP) ScannerTest p3tests/badString.as
+		echo "--------------------------------------------------------"
 		$(JAVA) -cp $(CP) ScannerTest p3tests/badTernaryCond.as
+		echo "--------------------------------------------------------"
 		$(JAVA) -cp $(CP) ScannerTest p3tests/badTernaryTypes.as
+		echo "--------------------------------------------------------"
 		$(JAVA) -cp $(CP) ScannerTest p3tests/boolToFloat.as
+		echo "--------------------------------------------------------"
 		$(JAVA) -cp $(CP) ScannerTest p3tests/boolToInt.as
+		echo "--------------------------------------------------------"
 		$(JAVA) -cp $(CP) ScannerTest p3tests/callNonExistFunc.as
+		echo "--------------------------------------------------------"
 		$(JAVA) -cp $(CP) ScannerTest p3tests/charToFloat.as
+		echo "--------------------------------------------------------"
 		$(JAVA) -cp $(CP) ScannerTest p3tests/floatToInt.as
+		echo "--------------------------------------------------------"
 		$(JAVA) -cp $(CP) ScannerTest p3tests/fullValidProgram.as
+		echo "--------------------------------------------------------"
 		$(JAVA) -cp $(CP) ScannerTest p3tests/incompatBinary.as
+		echo "--------------------------------------------------------"
 		$(JAVA) -cp $(CP) ScannerTest p3tests/intArrayToBoolArray.as
+		echo "--------------------------------------------------------"
 		$(JAVA) -cp $(CP) ScannerTest p3tests/noReturn.as
+		echo "--------------------------------------------------------"
 		$(JAVA) -cp $(CP) ScannerTest p3tests/reassignFinal.as
+		echo "--------------------------------------------------------"
 		$(JAVA) -cp $(CP) ScannerTest p3tests/redefMethod.as
+		echo "--------------------------------------------------------"
 		$(JAVA) -cp $(CP) ScannerTest p3tests/redefVar.as
+		echo "--------------------------------------------------------"
 		$(JAVA) -cp $(CP) ScannerTest p3tests/redefVarAsMethod.as
+		echo "--------------------------------------------------------"
 		$(JAVA) -cp $(CP) ScannerTest p3tests/returnTypeBad.as
+		echo "--------------------------------------------------------"
 
 phase1 : Phase1_expressions Phase1_order_of_ops Phase1_statements
 phase2 : Phase2_empty Phase2_fields Phase2_full Phase2_methods

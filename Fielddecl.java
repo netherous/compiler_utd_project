@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 public class Fielddecl extends Token{
     String fin, type, id;
     Expr ex;
@@ -21,5 +23,19 @@ public class Fielddecl extends Token{
             ret = getTabs(t) + type + " " + id + "[" + it + "];";
         }
         return ret;
+    }
+
+    public String typeCheck() throws Exception {
+        if(prod){
+            if (ex != null)
+                if (!castTo(ex.typeCheck(), type))
+                    throw new Exception("Error: assignment type mis-matched: " + type + "=" + ex.typeCheck());
+            symbolTable.addVar(id, fin, type, new ArrayList<>());
+            System.err.println(symbolTable.get(id).toString());
+        }else{
+            symbolTable.addVar(id, "array", type,  new ArrayList<>());
+            System.err.println(symbolTable.get(id).toString());
+        }
+        return "";
     }
 }
