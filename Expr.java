@@ -121,4 +121,123 @@ public class Expr extends Token {
         ret = "(" + ret + ")";
         return ret;
     }
+
+    public boolean isArray() throws Exception{
+        return name != null && name.isArray() || prod == 14 && ex.isArray();
+    }
+
+    public boolean isFinal() throws Exception{
+        return name != null && name.isFinal() || prod == 14 && ex.isFinal();
+    }
+
+    public boolean isMethod()throws Exception{
+        return name != null && name.isMethod() || prod == 14 && ex.isMethod();
+    }
+
+    public String typeCheck() throws Exception{
+        String ret = "";
+        switch(this.prod){
+            case 1:
+                ret = name.typeCheck();
+                break;
+            case 2:
+                SymbolTable.Var meth = symbolTable.get(str);
+                if(meth.type != "meth"){
+                    throw new Exception("Error: cannot call on non-function type: " + str);
+                }
+                ret = meth.typeCheck();
+                break;
+            case 3:
+                meth = symbolTable.get(str);
+                if(meth.type != "meth"){
+                    throw new Exception("Error: cannot call on non-function type: " + str);
+                }
+                if(args.dq.size() != meth.nested.size())
+                    throw new Exception("Error: number of arguments miss-matched: " + meth.toString());
+                for(int i = 0; i< args.dq.size(); i++){
+                    Expr from = args.dq.get(i);
+                    SymbolTable.Var to = meth.nested.get(i);
+                    if((from.isArray() != to.isArray()) || !castTo(from.typeCheck(), to.typeCheck()))
+                        throw new Exception("Error: argument types mis-matched: " + meth.toString());
+                }
+                ret = meth.typeCheck(); 
+                break;
+            case 4:
+                ret = "int";
+                break;
+            case 5: 
+                ret =  "char";
+                break;
+            case 6:
+                ret =  "str";
+                break;
+            case 7:
+                ret =  "float";
+                break;
+            case 8:
+                ret =  "bool";
+                break;
+            case 9:
+                ret =  "";
+                break;
+            case 10:
+                ret =  ex.typeCheck();
+                break;
+            case 11:
+                if(!ex.typeCheck().equals("bool"))
+                    throw new Exception("Error: negation cannot be applied to none bool type: " + ex.toString(0));
+                ret =  "bool";
+                break;
+            case 12:
+                if(!ex.typeCheck().equals("float") || !ex.typeCheck().equals("int"))
+                    throw new Exception("Error: operator cannot be apply to this type: " + ex.typeCheck());
+                ret = ex.typeCheck(); 
+                break;
+            case 13:
+                if(!ex.typeCheck().equals("float") || !ex.typeCheck().equals("int"))
+                    throw new Exception("Error: operator cannot be apply to this type: " + ex.typeCheck());
+                ret = ex.typeCheck(); 
+                break;
+            case 14:
+            // casting
+                ret = str;
+                break;
+            case 15:
+            //binary ops
+                String op = ops.toString();
+                String t1 = ex.typeCheck();
+                String t2 = ex2.typeCheck();
+                if(ex.typeCheck().equals("str") || ex.typeCheck().equals("str")){
+                    if(!op.equals("+"))
+                        throw new Exception("Error: type mis-matched for operator: " + op);
+                    ret = "str";
+                } 
+                if(ops.isArith()){
+                    if (!floatOrInt(ex.typeCheck()) || !floatOrInt(ex2.typeCheck()))
+                        throw new Exception("Error: type mis-matched for operator: " + op);
+                    ret = t1.equals("float") || t2.equals("float")? "float":"int";
+                }else if(ops.isRel()){
+                    if (!floatOrInt(ex.typeCheck()) || !floatOrInt(ex2.typeCheck()))
+                        throw new Exception("Error: type mis-matched for operator: " + op);
+                    ret = "bool";
+                }else if (ops.isLog()){
+                    if(!isBool(t2)|| !isBool(t1))
+                        throw new Exception("Error: type mis-matched for operator: " + op);
+                    ret = "bool";
+                }
+                break;
+            case 16:
+                t1 = ex.typeCheck();
+                t2 = ex2.typeCheck();
+                String t3 = ex3.typeCheck();
+                if (!isBool(t1))
+                    throw new Exception("Error: type is not a bool for terinary: " + ops.ops);
+                if (!t2.equals(t3))
+                    throw new Exception("Error: type is not consistent for terinary: " + ops.ops);
+                ret = t2;
+                break;
+        }
+        ret = "(" + ret + ")";
+        return ret;
+    }
 }

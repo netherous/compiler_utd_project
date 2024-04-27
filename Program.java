@@ -6,12 +6,17 @@ public class Program extends Token{
 	public Program(String id, Memberdecl mbs){
 		this.id = id;
 		this.mbs = mbs;
+		symbolTable = new SymbolTable();
 	}
 	public Program(){
-		empty =1;
-	}
+		
+	}  
 	public Program(StmtList sts){
 		this.sts = sts;
+	}
+
+	public String typeCheck() throws Exception{
+		return "";
 	}
 
 	@Override

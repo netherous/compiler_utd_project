@@ -17,11 +17,38 @@ FILE=    Lexer.java      parser.java    sym.java \
 	Expr.java Args.java Name.java BinaryOps.java Program.java \
 	Stmt.java StmtList.java ReadList.java Methoddecl.java \
 	Fielddecl.java FielddeclList.java MethoddeclList.java \
-	Argdecl.java ArgdeclList.java Memberdecl.java 
+	Argdecl.java ArgdeclList.java Memberdecl.java \
+	SymbolTable.java 
 
 # run: basicTest.txt basicFails.txt basicRegex.txt basicRegex.txt basicTerminals.txt
 
 all: Lexer.java parser.java $(FILE:java=class)
+
+uniq : all
+		$(JAVA) -cp $(CP) ScannerTest p3tests/incompatBinary.as
+		cat -n p3tests/incompatBinary.as
+
+phase3 : all
+		$(JAVA) -cp $(CP) ScannerTest p3tests/badDec.as
+		$(JAVA) -cp $(CP) ScannerTest p3tests/badInc.as
+		$(JAVA) -cp $(CP) ScannerTest p3tests/badNegation.as
+		$(JAVA) -cp $(CP) ScannerTest p3tests/badString.as
+		$(JAVA) -cp $(CP) ScannerTest p3tests/badTernaryCond.as
+		$(JAVA) -cp $(CP) ScannerTest p3tests/badTernaryTypes.as
+		$(JAVA) -cp $(CP) ScannerTest p3tests/boolToFloat.as
+		$(JAVA) -cp $(CP) ScannerTest p3tests/boolToInt.as
+		$(JAVA) -cp $(CP) ScannerTest p3tests/callNonExistFunc.as
+		$(JAVA) -cp $(CP) ScannerTest p3tests/charToFloat.as
+		$(JAVA) -cp $(CP) ScannerTest p3tests/floatToInt.as
+		$(JAVA) -cp $(CP) ScannerTest p3tests/fullValidProgram.as
+		$(JAVA) -cp $(CP) ScannerTest p3tests/incompatBinary.as
+		$(JAVA) -cp $(CP) ScannerTest p3tests/intArrayToBoolArray.as
+		$(JAVA) -cp $(CP) ScannerTest p3tests/noReturn.as
+		$(JAVA) -cp $(CP) ScannerTest p3tests/reassignFinal.as
+		$(JAVA) -cp $(CP) ScannerTest p3tests/redefMethod.as
+		$(JAVA) -cp $(CP) ScannerTest p3tests/redefVar.as
+		$(JAVA) -cp $(CP) ScannerTest p3tests/redefVarAsMethod.as
+		$(JAVA) -cp $(CP) ScannerTest p3tests/returnTypeBad.as
 
 phase1 : Phase1_expressions Phase1_order_of_ops Phase1_statements
 phase2 : Phase2_empty Phase2_fields Phase2_full Phase2_methods
