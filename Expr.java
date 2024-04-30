@@ -221,7 +221,7 @@ public class Expr extends Token {
                         t1 = "int";
                     if (castTo(t2, "int"))
                         t2 = "int";
-                    if (!floatOrInt(t1) || !floatOrInt(t2)){
+                    if (!floatOrInt(ex.typeCheck()) || !floatOrInt(ex2.typeCheck())){
 
                         throw new Exception("Error: type mis-matched for operator: " + op + " " + ex.toString(0) + "," + ex2.toString(0));
                     }
@@ -237,13 +237,14 @@ public class Expr extends Token {
                 }
                 break;
             case 16:
+
                 t1 = ex.typeCheck();
                 t2 = ex2.typeCheck();
                 String t3 = ex3.typeCheck();
                 if (!isBool(t1))
-                    throw new Exception("Error: type is not a bool for terinary: " + ops.ops);
+                    throw new Exception("Error: type is not a bool for terinary: " + ex.toString(0));
                 if (!t2.equals(t3))
-                    throw new Exception("Error: type is not consistent for terinary: " + ops.ops);
+                    throw new Exception("Error: type is not consistent for terinary: " + t2 + " : " + t3);
                 ret = t2;
                 break;
         }
